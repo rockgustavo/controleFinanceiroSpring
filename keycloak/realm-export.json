@@ -1,0 +1,91 @@
+{
+  "realm": "financeiro",
+  "displayName": "Controle Financeiro",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "financeiro-backend",
+      "name": "Controle Financeiro Backend",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "financeiro-backend-secret",
+      "bearerOnly": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    },
+    {
+      "clientId": "financeiro-frontend",
+      "name": "Controle Financeiro Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:8080",
+        "http://localhost"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Acesso completo — CRUD",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "VIEWER",
+        "description": "Somente leitura",
+        "composite": false,
+        "clientRole": false
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin@financeiro.dev",
+      "email": "admin@financeiro.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN", "VIEWER"]
+    },
+    {
+      "username": "viewer@financeiro.dev",
+      "email": "viewer@financeiro.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "viewer123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["VIEWER"]
+    }
+  ]
+}
