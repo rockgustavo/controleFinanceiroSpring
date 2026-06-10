@@ -2,10 +2,13 @@ package com.controleFinanceiro.infrastructure.config;
 
 import com.controleFinanceiro.application.dto.response.ApiResponse;
 import com.controleFinanceiro.application.dto.response.ErrorDetail;
+import com.controleFinanceiro.domain.shared.ErrorCodes;
+import com.controleFinanceiro.domain.shared.MessageKeys;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,6 +35,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
+    private final MessageSource messageSource;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -70,11 +74,13 @@ public class SecurityConfig {
     }
 
     private void handleUnauthorized(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) throws IOException {
-        writeError(res, 401, "UNAUTHORIZED", "Token ausente ou inválido", req.getRequestURI());
+        var msg = messageSource.getMessage(MessageKeys.SECURITY_UNAUTHORIZED, null, req.getLocale());
+        writeError(res, 401, ErrorCodes.UNAUTHORIZED, msg, req.getRequestURI());
     }
 
     private void handleForbidden(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) throws IOException {
-        writeError(res, 403, "FORBIDDEN", "Permissão insuficiente", req.getRequestURI());
+        var msg = messageSource.getMessage(MessageKeys.SECURITY_FORBIDDEN, null, req.getLocale());
+        writeError(res, 403, ErrorCodes.FORBIDDEN, msg, req.getRequestURI());
     }
 
     private void writeError(HttpServletResponse res, int status, String code, String message, String path) throws IOException {

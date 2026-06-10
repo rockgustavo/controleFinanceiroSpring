@@ -6,9 +6,13 @@ import com.controleFinanceiro.application.exception.ApplicationException;
 import com.controleFinanceiro.domain.exception.ConflictException;
 import com.controleFinanceiro.domain.exception.DomainException;
 import com.controleFinanceiro.domain.exception.NotFoundException;
+import com.controleFinanceiro.domain.shared.ErrorCodes;
+import com.controleFinanceiro.domain.shared.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
@@ -27,29 +31,30 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private final Environment env;
+    private final MessageSource messageSource;
 
     @ExceptionHandler(NotFoundException.class)
     ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), ex.getMessage(), 404, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), resolve(ex.getMessage(), ex.getArgs()), 404, req.getRequestURI())));
     }
 
     @ExceptionHandler(ConflictException.class)
     ResponseEntity<ApiResponse<Void>> handleConflict(ConflictException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), ex.getMessage(), 409, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), resolve(ex.getMessage(), ex.getArgs()), 409, req.getRequestURI())));
     }
 
     @ExceptionHandler(DomainException.class)
     ResponseEntity<ApiResponse<Void>> handleDomain(DomainException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), ex.getMessage(), 422, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), resolve(ex.getMessage(), ex.getArgs()), 422, req.getRequestURI())));
     }
 
     @ExceptionHandler(ApplicationException.class)
     ResponseEntity<ApiResponse<Void>> handleApplication(ApplicationException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), ex.getMessage(), 400, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ex.getErrorCode(), resolve(ex.getMessage(), ex.getArgs()), 400, req.getRequestURI())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -58,20 +63,27 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorDetail.of("VALIDATION_ERROR", message, 400, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.VALIDATION_ERROR, message, 400, req.getRequestURI())));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(ErrorDetail.of("FORBIDDEN", "Permissão insuficiente", 403, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.FORBIDDEN, resolve(MessageKeys.SECURITY_FORBIDDEN, null), 403, req.getRequestURI())));
     }
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex, HttpServletRequest req) {
         log.error("Unexpected error on {}: {}", req.getRequestURI(), ex.getMessage(), ex);
-        var message = env.acceptsProfiles(Profiles.of("prod")) ? "Erro inesperado" : ex.getMessage();
+        var message = env.acceptsProfiles(Profiles.of("prod"))
+                ? resolve(MessageKeys.ERROR_INTERNAL, null)
+                : ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(ErrorDetail.of("INTERNAL_ERROR", message, 500, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.INTERNAL_ERROR, message, 500, req.getRequestURI())));
+    }
+
+    private String resolve(String key, Object[] args) {
+        String effectiveKey = key != null ? key : "";
+        return messageSource.getMessage(effectiveKey, args, LocaleContextHolder.getLocale());
     }
 }
