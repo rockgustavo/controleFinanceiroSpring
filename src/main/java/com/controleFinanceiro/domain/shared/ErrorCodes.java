@@ -23,6 +23,10 @@ public final class ErrorCodes {
     public static final String POSICAO_PRECO_INVALIDO = "POSICAO_PRECO_INVALIDO";
     public static final String POSICAO_TOTAL_LIQUIDO_INVALIDO = "POSICAO_TOTAL_LIQUIDO_INVALIDO";
 
+    public static final String SNAPSHOT_SEM_HISTORICO = "SNAPSHOT_SEM_HISTORICO";
+    public static final String PROJECAO_TAXA_INVALIDA = "PROJECAO_TAXA_INVALIDA";
+    public static final String PROJECAO_MESES_INVALIDOS = "PROJECAO_MESES_INVALIDOS";
+
     public static final String NAO_AUTORIZADO = "NAO_AUTORIZADO";
     public static final String ACESSO_NEGADO = "ACESSO_NEGADO";
     public static final String ERRO_INTERNO = "ERRO_INTERNO";

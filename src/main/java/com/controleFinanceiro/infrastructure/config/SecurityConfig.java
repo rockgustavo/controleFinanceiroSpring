@@ -1,13 +1,11 @@
 package com.controleFinanceiro.infrastructure.config;
 
-import com.controleFinanceiro.application.dto.response.ApiResponse;
-import com.controleFinanceiro.application.dto.response.ErrorDetail;
-import com.controleFinanceiro.domain.shared.ErrorCodes;
-import com.controleFinanceiro.domain.shared.MessageKeys;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +24,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.io.IOException;
-import java.util.List;
+import com.controleFinanceiro.application.dto.response.ApiResponse;
+import com.controleFinanceiro.application.dto.response.ErrorDetail;
+import com.controleFinanceiro.domain.shared.ErrorCodes;
+import com.controleFinanceiro.domain.shared.MessageKeys;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity

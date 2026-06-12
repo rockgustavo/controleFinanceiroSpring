@@ -23,6 +23,10 @@ public final class MessageKeys {
     public static final String POSICAO_PRECO_INVALIDO = "erro.posicao.preco_invalido";
     public static final String POSICAO_TOTAL_LIQUIDO_INVALIDO = "erro.posicao.total_liquido_invalido";
 
+    public static final String SNAPSHOT_SEM_HISTORICO = "erro.snapshot.sem_historico";
+    public static final String PROJECAO_TAXA_INVALIDA = "erro.projecao.taxa_invalida";
+    public static final String PROJECAO_MESES_INVALIDOS = "erro.projecao.meses_invalidos";
+
     public static final String SEGURANCA_NAO_AUTORIZADO = "erro.seguranca.nao_autorizado";
     public static final String SEGURANCA_ACESSO_NEGADO = "erro.seguranca.acesso_negado";
 

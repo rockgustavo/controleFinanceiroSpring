@@ -1,20 +1,22 @@
 package com.controleFinanceiro.infrastructure.adapter.out.external;
 
-import com.controleFinanceiro.application.dto.response.TaxaTesourosResponse;
-import com.controleFinanceiro.domain.model.DadosMercado;
-import com.controleFinanceiro.domain.port.out.external.BrapiClientPort;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
+import com.controleFinanceiro.application.dto.response.TaxaTesourosResponse;
+import com.controleFinanceiro.domain.model.DadosMercado;
+import com.controleFinanceiro.domain.port.out.external.BrapiClientPort;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
