@@ -1,14 +1,16 @@
 package com.controleFinanceiro.infrastructure.adapter.out.persistence;
 
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+
 import com.controleFinanceiro.domain.model.DadosMercado;
 import com.controleFinanceiro.domain.port.out.command.DadosMercadoRepositoryPort;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.DadosMercadoEntity;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.repository.DadosMercadoJpaRepository;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.repository.SnapshotJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

@@ -1,5 +1,10 @@
 package com.controleFinanceiro.application.usecase.command.ativo;
 
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.controleFinanceiro.domain.event.AtivoAlteradoEvent;
 import com.controleFinanceiro.domain.exception.ConflictException;
 import com.controleFinanceiro.domain.exception.NotFoundException;
@@ -10,11 +15,8 @@ import com.controleFinanceiro.domain.port.out.messaging.EventPublisherPort;
 import com.controleFinanceiro.domain.service.factory.AtivoValidatorFactory;
 import com.controleFinanceiro.domain.shared.ErrorCodes;
 import com.controleFinanceiro.domain.shared.MessageKeys;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

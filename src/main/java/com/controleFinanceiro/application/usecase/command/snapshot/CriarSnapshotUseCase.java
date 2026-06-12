@@ -1,5 +1,8 @@
 package com.controleFinanceiro.application.usecase.command.snapshot;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.controleFinanceiro.domain.event.SnapshotCriadoEvent;
 import com.controleFinanceiro.domain.model.Posicao;
 import com.controleFinanceiro.domain.model.Snapshot;
@@ -9,10 +12,9 @@ import com.controleFinanceiro.domain.port.out.command.DadosMercadoRepositoryPort
 import com.controleFinanceiro.domain.port.out.command.SnapshotRepositoryPort;
 import com.controleFinanceiro.domain.port.out.external.BrapiClientPort;
 import com.controleFinanceiro.domain.port.out.messaging.EventPublisherPort;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service

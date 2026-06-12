@@ -1,10 +1,12 @@
 package com.controleFinanceiro.application.usecase.query.mercado;
 
+import org.springframework.stereotype.Service;
+
 import com.controleFinanceiro.application.dto.response.IndicadoresMercadoResponse;
 import com.controleFinanceiro.domain.port.in.query.BuscarIndicadoresMercadoPort;
 import com.controleFinanceiro.domain.port.out.external.BrapiClientPort;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

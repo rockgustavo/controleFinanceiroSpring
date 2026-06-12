@@ -1,10 +1,11 @@
 package com.controleFinanceiro.infrastructure.adapter.out.persistence.repository;
 
-import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.AtivoEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.AtivoEntity;
 
 public interface AtivoJpaRepository extends JpaRepository<AtivoEntity, UUID> {
     boolean existsByTickerAndArquivadoEmIsNull(String ticker);

@@ -40,7 +40,7 @@ class AtivoQueryControllerTest {
         when(listarAtivos.execute()).thenReturn(
                 List.of(new AtivoResponse(id, "Tesouro Selic", "RENDA_FIXA", null, null)));
 
-        mvc.perform(get("/api/ativos"))
+        mvc.perform(get("/api/assets"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data[0].nome").value("Tesouro Selic"));
@@ -51,7 +51,7 @@ class AtivoQueryControllerTest {
     void listar_retorna_200_com_admin() throws Exception {
         when(listarAtivos.execute()).thenReturn(List.of());
 
-        mvc.perform(get("/api/ativos"))
+        mvc.perform(get("/api/assets"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray());
     }
@@ -63,7 +63,7 @@ class AtivoQueryControllerTest {
         when(buscarAtivo.execute(id)).thenReturn(
                 new AtivoResponse(id, "PETR4 Ação", "RENDA_VARIAVEL", "PETR4", null));
 
-        mvc.perform(get("/api/ativos/{id}", id))
+        mvc.perform(get("/api/assets/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.ticker").value("PETR4"));
     }
@@ -75,7 +75,7 @@ class AtivoQueryControllerTest {
         when(buscarAtivo.execute(any())).thenThrow(
                 new NotFoundException("ativo.nao.encontrado", "ATIVO_NAO_ENCONTRADO", id));
 
-        mvc.perform(get("/api/ativos/{id}", id))
+        mvc.perform(get("/api/assets/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value("ATIVO_NAO_ENCONTRADO"));
@@ -83,7 +83,7 @@ class AtivoQueryControllerTest {
 
     @Test
     void listar_sem_autenticacao_retorna_401() throws Exception {
-        mvc.perform(get("/api/ativos"))
+        mvc.perform(get("/api/assets"))
                 .andExpect(status().isUnauthorized());
     }
 }

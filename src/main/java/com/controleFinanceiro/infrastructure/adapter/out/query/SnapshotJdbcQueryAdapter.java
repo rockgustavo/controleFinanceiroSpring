@@ -1,13 +1,5 @@
 package com.controleFinanceiro.infrastructure.adapter.out.query;
 
-import com.controleFinanceiro.application.dto.response.PosicaoResponse;
-import com.controleFinanceiro.application.dto.response.SnapshotResponse;
-import com.controleFinanceiro.application.dto.response.SnapshotResumoResponse;
-import com.controleFinanceiro.domain.port.out.query.SnapshotQueryPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +7,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import com.controleFinanceiro.application.dto.response.PosicaoResponse;
+import com.controleFinanceiro.application.dto.response.SnapshotResponse;
+import com.controleFinanceiro.application.dto.response.SnapshotResumoResponse;
+import com.controleFinanceiro.domain.port.out.query.SnapshotQueryPort;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

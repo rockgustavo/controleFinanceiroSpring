@@ -59,7 +59,7 @@ class AtivoCommandControllerTest {
 
         var body = Map.of("nome", "Tesouro Selic", "tipo", "RENDA_FIXA");
 
-        mvc.perform(post("/api/ativos")
+        mvc.perform(post("/api/assets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(Objects.requireNonNull(objectMapper.writeValueAsString(body))))
                 .andExpect(status().isCreated())
@@ -75,7 +75,7 @@ class AtivoCommandControllerTest {
 
         var body = Map.of("nome", "Nome Atualizado");
 
-        mvc.perform(patch("/api/ativos/{id}", id)
+        mvc.perform(patch("/api/assets/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(Objects.requireNonNull(objectMapper.writeValueAsString(body))))
                 .andExpect(status().isOk())
@@ -87,7 +87,7 @@ class AtivoCommandControllerTest {
     void arquivar_retorna_204() throws Exception {
         var id = UUID.randomUUID();
 
-        mvc.perform(delete("/api/ativos/{id}", id))
+        mvc.perform(delete("/api/assets/{id}", id))
                 .andExpect(status().isNoContent());
 
         verify(arquivarAtivo).execute(id);
@@ -98,7 +98,7 @@ class AtivoCommandControllerTest {
     void criar_com_role_viewer_retorna_403() throws Exception {
         var body = Map.of("nome", "Tesouro Selic", "tipo", "RENDA_FIXA");
 
-        mvc.perform(post("/api/ativos")
+        mvc.perform(post("/api/assets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(Objects.requireNonNull(objectMapper.writeValueAsString(body))))
                 .andExpect(status().isForbidden());
@@ -108,7 +108,7 @@ class AtivoCommandControllerTest {
     void criar_sem_autenticacao_retorna_401() throws Exception {
         var body = Map.of("nome", "Tesouro Selic", "tipo", "RENDA_FIXA");
 
-        mvc.perform(post("/api/ativos")
+        mvc.perform(post("/api/assets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(Objects.requireNonNull(objectMapper.writeValueAsString(body))))
                 .andExpect(status().isUnauthorized());

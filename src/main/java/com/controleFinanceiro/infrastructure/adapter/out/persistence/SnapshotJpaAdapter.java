@@ -1,16 +1,18 @@
 package com.controleFinanceiro.infrastructure.adapter.out.persistence;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.controleFinanceiro.domain.model.Posicao;
 import com.controleFinanceiro.domain.model.Snapshot;
 import com.controleFinanceiro.domain.port.out.command.SnapshotRepositoryPort;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.PosicaoEntity;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.SnapshotEntity;
 import com.controleFinanceiro.infrastructure.adapter.out.persistence.repository.SnapshotJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

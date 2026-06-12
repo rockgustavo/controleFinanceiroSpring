@@ -1,13 +1,15 @@
 package com.controleFinanceiro.application.usecase.query.snapshot;
 
+import org.springframework.stereotype.Service;
+
 import com.controleFinanceiro.application.dto.response.SnapshotResponse;
 import com.controleFinanceiro.domain.exception.NotFoundException;
 import com.controleFinanceiro.domain.port.in.query.BuscarUltimoSnapshotPort;
 import com.controleFinanceiro.domain.port.out.query.SnapshotQueryPort;
 import com.controleFinanceiro.domain.shared.ErrorCodes;
 import com.controleFinanceiro.domain.shared.MessageKeys;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

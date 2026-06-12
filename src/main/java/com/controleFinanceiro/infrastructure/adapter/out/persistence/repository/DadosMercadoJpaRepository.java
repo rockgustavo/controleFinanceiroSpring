@@ -1,8 +1,9 @@
 package com.controleFinanceiro.infrastructure.adapter.out.persistence.repository;
 
-import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.DadosMercadoEntity;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
+import com.controleFinanceiro.infrastructure.adapter.out.persistence.entity.DadosMercadoEntity;
 
 public interface DadosMercadoJpaRepository extends JpaRepository<DadosMercadoEntity, UUID> {}
