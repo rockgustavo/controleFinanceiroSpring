@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/ativos")
+@RequestMapping("/api/assets")
 @RequiredArgsConstructor
 @Tag(name = "Ativos - Command", description = "Operações de escrita para ativos")
 public class AtivoCommandController {

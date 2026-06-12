@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Component
@@ -71,12 +72,13 @@ public class SnapshotJdbcQueryAdapter implements SnapshotQueryPort {
     }
 
     private SnapshotResumoResponse mapResumoRow(ResultSet rs, int rowNum) throws SQLException {
+        var criadoEm = rs.getObject("criado_em", OffsetDateTime.class);
         return new SnapshotResumoResponse(
                 UUID.fromString(rs.getString("id")),
                 rs.getObject("data", LocalDate.class),
                 rs.getBigDecimal("total_liq"),
                 rs.getInt("numero_posicoes"),
-                rs.getObject("criado_em", Instant.class)
+                criadoEm != null ? criadoEm.toInstant() : null
         );
     }
 
@@ -87,11 +89,12 @@ public class SnapshotJdbcQueryAdapter implements SnapshotQueryPort {
 
     private FullRow mapFullRow(ResultSet rs, int rowNum) throws SQLException {
         var ativoIdStr = rs.getString("ativo_id");
+        var criadoEm = rs.getObject("criado_em", OffsetDateTime.class);
         return new FullRow(
                 UUID.fromString(rs.getString("snapshot_id")),
                 rs.getObject("data", LocalDate.class),
                 rs.getString("observacoes"),
-                rs.getObject("criado_em", Instant.class),
+                criadoEm != null ? criadoEm.toInstant() : null,
                 ativoIdStr != null ? UUID.fromString(ativoIdStr) : null,
                 rs.getString("nome_ativo"),
                 rs.getString("tipo_ativo"),

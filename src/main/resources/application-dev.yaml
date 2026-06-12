@@ -24,6 +24,9 @@ spring:
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+cors:
+  allowed-origins: http://localhost:4200
+
 logging:
   level:
     root: INFO

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/ativos")
+@RequestMapping("/api/assets")
 @RequiredArgsConstructor
 @Tag(name = "Ativos - Query", description = "Operações de leitura para ativos")
 public class AtivoQueryController {

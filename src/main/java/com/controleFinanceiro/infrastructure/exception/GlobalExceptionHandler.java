@@ -1,16 +1,9 @@
 package com.controleFinanceiro.infrastructure.exception;
 
-import com.controleFinanceiro.application.dto.response.ApiResponse;
-import com.controleFinanceiro.application.dto.response.ErrorDetail;
-import com.controleFinanceiro.application.exception.ApplicationException;
-import com.controleFinanceiro.domain.exception.ConflictException;
-import com.controleFinanceiro.domain.exception.DomainException;
-import com.controleFinanceiro.domain.exception.NotFoundException;
-import com.controleFinanceiro.domain.shared.ErrorCodes;
-import com.controleFinanceiro.domain.shared.MessageKeys;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
@@ -22,8 +15,19 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.stream.Collectors;
+import com.controleFinanceiro.application.dto.response.ApiResponse;
+import com.controleFinanceiro.application.dto.response.ErrorDetail;
+import com.controleFinanceiro.application.exception.ApplicationException;
+import com.controleFinanceiro.domain.exception.ConflictException;
+import com.controleFinanceiro.domain.exception.DomainException;
+import com.controleFinanceiro.domain.exception.NotFoundException;
+import com.controleFinanceiro.domain.shared.ErrorCodes;
+import com.controleFinanceiro.domain.shared.MessageKeys;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -64,6 +68,12 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.ERRO_VALIDACAO, message, 400, req.getRequestURI())));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    ResponseEntity<ApiResponse<Void>> handleNoResource(NoResourceFoundException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.RECURSO_NAO_ENCONTRADO, ex.getMessage(), 404, req.getRequestURI())));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
