@@ -5,7 +5,9 @@ import com.controleFinanceiro.domain.model.Posicao;
 import com.controleFinanceiro.domain.model.Snapshot;
 import com.controleFinanceiro.domain.port.in.command.CriarSnapshotPort;
 import com.controleFinanceiro.domain.port.out.command.AtivoRepositoryPort;
+import com.controleFinanceiro.domain.port.out.command.DadosMercadoRepositoryPort;
 import com.controleFinanceiro.domain.port.out.command.SnapshotRepositoryPort;
+import com.controleFinanceiro.domain.port.out.external.BrapiClientPort;
 import com.controleFinanceiro.domain.port.out.messaging.EventPublisherPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ public class CriarSnapshotUseCase implements CriarSnapshotPort {
     private final SnapshotRepositoryPort snapshotRepository;
     private final AtivoRepositoryPort ativoRepository;
     private final EventPublisherPort eventPublisher;
+    private final BrapiClientPort brapiClient;
+    private final DadosMercadoRepositoryPort dadosMercadoRepository;
 
     @Override
     @Transactional
@@ -38,6 +42,14 @@ public class CriarSnapshotUseCase implements CriarSnapshotPort {
         );
 
         var snapshot = snapshotRepository.save(builder.build());
+
+        try {
+            brapiClient.buscarDadosMercado().ifPresent(dados ->
+                    dadosMercadoRepository.save(snapshot.getId(), dados)
+            );
+        } catch (Exception e) {
+            log.warn("Falha ao salvar dados de mercado para snapshot {}: {}", snapshot.getId(), e.getMessage());
+        }
 
         try {
             eventPublisher.publish(SnapshotCriadoEvent.of(snapshot.getId(), snapshot.getData()));
