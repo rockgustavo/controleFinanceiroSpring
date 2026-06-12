@@ -63,23 +63,23 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.VALIDATION_ERROR, message, 400, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.ERRO_VALIDACAO, message, 400, req.getRequestURI())));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex, HttpServletRequest req) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.FORBIDDEN, resolve(MessageKeys.SECURITY_FORBIDDEN, null), 403, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.ACESSO_NEGADO, resolve(MessageKeys.SEGURANCA_ACESSO_NEGADO, null), 403, req.getRequestURI())));
     }
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex, HttpServletRequest req) {
         log.error("Unexpected error on {}: {}", req.getRequestURI(), ex.getMessage(), ex);
         var message = env.acceptsProfiles(Profiles.of("prod"))
-                ? resolve(MessageKeys.ERROR_INTERNAL, null)
+                ? resolve(MessageKeys.ERRO_INTERNO, null)
                 : ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.INTERNAL_ERROR, message, 500, req.getRequestURI())));
+                .body(ApiResponse.error(ErrorDetail.of(ErrorCodes.ERRO_INTERNO, message, 500, req.getRequestURI())));
     }
 
     private String resolve(String key, Object[] args) {

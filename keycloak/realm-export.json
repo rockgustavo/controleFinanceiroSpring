@@ -62,8 +62,11 @@
     {
       "username": "admin@financeiro.dev",
       "email": "admin@financeiro.dev",
+      "firstName": "Admin",
+      "lastName": "Financeiro",
       "emailVerified": true,
       "enabled": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
@@ -76,8 +79,11 @@
     {
       "username": "viewer@financeiro.dev",
       "email": "viewer@financeiro.dev",
+      "firstName": "Viewer",
+      "lastName": "Financeiro",
       "emailVerified": true,
       "enabled": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",

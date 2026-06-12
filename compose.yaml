@@ -6,9 +6,10 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-financeiro}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-financeiro}
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-financeiro} -d financeiro"]
       interval: 10s
@@ -33,7 +34,7 @@ services:
     image: quay.io/keycloak/keycloak:24.0
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/financeiro
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
       KC_DB_USERNAME: ${DB_USERNAME:-financeiro}
       KC_DB_PASSWORD: ${DB_PASSWORD:-financeiro}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}

@@ -13,6 +13,8 @@ import org.springframework.lang.NonNull;
 public class RabbitConfig {
 
     public static final String EXCHANGE = "financeiro.exchange";
+    public static final String ROUTING_KEY_ATIVO_ALTERADO = "ativo.alterado";
+    public static final String ROUTING_KEY_SNAPSHOT_CRIADO = "snapshot.criado";
 
     @Bean
     TopicExchange financeiroExchange() {

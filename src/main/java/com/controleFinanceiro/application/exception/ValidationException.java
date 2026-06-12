@@ -9,6 +9,6 @@ public class ValidationException extends ApplicationException {
     }
 
     public ValidationException(String messageKey) {
-        super(messageKey, ErrorCodes.VALIDATION_ERROR);
+        super(messageKey, ErrorCodes.ERRO_VALIDACAO);
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
@@ -52,6 +53,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .bearerTokenResolver(request -> {
+                            if ("/api/health".equals(request.getRequestURI())) return null;
+                            return new DefaultBearerTokenResolver().resolve(request);
+                        })
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakRoleConverter()))
                         .authenticationEntryPoint(this::handleUnauthorized)
                         .accessDeniedHandler(this::handleForbidden)
@@ -74,13 +79,13 @@ public class SecurityConfig {
     }
 
     private void handleUnauthorized(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) throws IOException {
-        var msg = messageSource.getMessage(MessageKeys.SECURITY_UNAUTHORIZED, null, req.getLocale());
-        writeError(res, 401, ErrorCodes.UNAUTHORIZED, msg, req.getRequestURI());
+        var msg = messageSource.getMessage(MessageKeys.SEGURANCA_NAO_AUTORIZADO, null, req.getLocale());
+        writeError(res, 401, ErrorCodes.NAO_AUTORIZADO, msg, req.getRequestURI());
     }
 
     private void handleForbidden(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) throws IOException {
-        var msg = messageSource.getMessage(MessageKeys.SECURITY_FORBIDDEN, null, req.getLocale());
-        writeError(res, 403, ErrorCodes.FORBIDDEN, msg, req.getRequestURI());
+        var msg = messageSource.getMessage(MessageKeys.SEGURANCA_ACESSO_NEGADO, null, req.getLocale());
+        writeError(res, 403, ErrorCodes.ACESSO_NEGADO, msg, req.getRequestURI());
     }
 
     private void writeError(HttpServletResponse res, int status, String code, String message, String path) throws IOException {
