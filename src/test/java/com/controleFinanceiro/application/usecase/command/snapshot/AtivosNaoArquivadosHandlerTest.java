@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AtivosAtivosHandlerTest {
+class AtivosNaoArquivadosHandlerTest {
 
     @Mock AtivoRepositoryPort ativoRepository;
 
@@ -37,7 +37,7 @@ class AtivosAtivosHandlerTest {
     void handle_ativo_nao_encontrado_lanca_NotFoundException() {
         var id = UUID.randomUUID();
         when(ativoRepository.findById(id)).thenReturn(Optional.empty());
-        var handler = new AtivosAtivosHandler(ativoRepository);
+        var handler = new AtivosNaoArquivadosHandler(ativoRepository);
 
         assertThatThrownBy(() -> handler.handle(commandComAtivo(id)))
                 .isInstanceOf(NotFoundException.class);
@@ -49,7 +49,7 @@ class AtivosAtivosHandlerTest {
         var arquivado = Ativo.reconstitute(id, "Ativo", TipoAtivo.RENDA_FIXA,
                 null, null, Instant.now(), Instant.now(), Instant.now());
         when(ativoRepository.findById(id)).thenReturn(Optional.of(arquivado));
-        var handler = new AtivosAtivosHandler(ativoRepository);
+        var handler = new AtivosNaoArquivadosHandler(ativoRepository);
 
         assertThatThrownBy(() -> handler.handle(commandComAtivo(id)))
                 .isInstanceOf(DomainException.class);
@@ -61,7 +61,7 @@ class AtivosAtivosHandlerTest {
         var ativo = Ativo.reconstitute(id, "Ativo", TipoAtivo.RENDA_FIXA,
                 null, null, Instant.now(), Instant.now(), null);
         when(ativoRepository.findById(id)).thenReturn(Optional.of(ativo));
-        var handler = new AtivosAtivosHandler(ativoRepository);
+        var handler = new AtivosNaoArquivadosHandler(ativoRepository);
 
         assertThatCode(() -> handler.handle(commandComAtivo(id))).doesNotThrowAnyException();
     }

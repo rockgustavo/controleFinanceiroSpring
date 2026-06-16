@@ -6,11 +6,11 @@ import com.controleFinanceiro.domain.port.out.command.AtivoRepositoryPort;
 import com.controleFinanceiro.domain.shared.ErrorCodes;
 import com.controleFinanceiro.domain.shared.MessageKeys;
 
-public class AtivosAtivosHandler extends SnapshotValidationHandler {
+public class AtivosNaoArquivadosHandler extends SnapshotValidationHandler {
 
     private final AtivoRepositoryPort ativoRepository;
 
-    public AtivosAtivosHandler(AtivoRepositoryPort ativoRepository) {
+    public AtivosNaoArquivadosHandler(AtivoRepositoryPort ativoRepository) {
         this.ativoRepository = ativoRepository;
     }
 

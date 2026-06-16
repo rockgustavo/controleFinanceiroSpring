@@ -299,22 +299,29 @@ Angular ──login──▶ Keycloak ──JWT──▶ Spring Boot (valida via
 > wsl --install && wsl --set-default-version 2
 > ```
 
-### Subida completa (produção local)
+### Subir tudo com um comando
+
+O Compose constrói o frontend a partir do diretório irmão `../controleFinanceiroAng` — **clone os dois repositórios lado a lado**:
 
 ```bash
 git clone https://github.com/rockgustavo/controleFinanceiroSpring.git
+git clone https://github.com/rockgustavo/controleFinanceiroAng.git
+
 cd controleFinanceiroSpring
 cp .env.example .env
 docker compose up --build
-# Aguarde ~60s no primeiro build — Keycloak importa o realm automaticamente
 ```
+
+O primeiro start leva ~1–2 min: build das imagens, Flyway aplica as migrations e o Keycloak importa o realm. Cada serviço entra no ar conforme seu healthcheck passa.
 
 | Serviço | URL |
 |---|---|
 | Frontend | http://localhost |
-| API / Swagger | http://localhost:8080/docs |
+| API / Swagger | http://localhost:8088/docs |
 | Keycloak Admin | http://localhost:8180 |
 | RabbitMQ Management | http://localhost:15672 |
+
+> **Reiniciando do zero?** O banco do Keycloak (`keycloak_db`) só é criado quando o volume do Postgres nasce. Se um start anterior falhou no meio, limpe antes com `docker compose down -v`.
 
 ### Desenvolvimento local
 
@@ -329,7 +336,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 cd ../controleFinanceiroAng && ng serve --open
 ```
 
-Acessos locais: **Frontend** http://localhost:4200 · **Swagger** http://localhost:8080/docs
+Acessos locais: **Frontend** http://localhost:4200 · **Swagger** http://localhost:8088/docs
 
 ### Credenciais de desenvolvimento
 
@@ -340,6 +347,8 @@ Acessos locais: **Frontend** http://localhost:4200 · **Swagger** http://localho
 | Keycloak admin | `admin` | Console de administração |
 | RabbitMQ | `guest` / `guest` | Painel de gestão |
 | PostgreSQL | `financeiro` / `financeiro` | Banco `financeiro` |
+
+> Os dois usuários acima — além do realm, clients e roles — são criados **automaticamente** pelo Keycloak na primeira subida (`start-dev --import-realm` a partir de [keycloak/realm-export.json](keycloak/realm-export.json)). Não há cadastro manual. Em restarts o import é ignorado (o realm já existe no `keycloak_db`); para recriar do zero, `docker compose down -v`.
 
 ---
 
@@ -359,7 +368,7 @@ Camadas cobertas:
 
 - Entidades e value objects (`Ativo`, `Posicao`, `Snapshot`)
 - Validators e Factory (`AtivoValidatorFactory`, `TickerObrigatorioValidator`)
-- Chain of Responsibility (`DataUnicaHandler`, `AtivosAtivosHandler`, `SemPosicoeDuplicadaHandler`)
+- Chain of Responsibility (`DataUnicaHandler`, `AtivosNaoArquivadosHandler`, `SemPosicoesDuplicadasHandler`)
 - Use cases de comando e consulta (ativos, snapshots, mercado, projeção)
 - Controllers com `@WebMvcTest` + cenários de autenticação 401/403
 - Repositório com Testcontainers (`AtivoRepositoryIntegrationTest`)

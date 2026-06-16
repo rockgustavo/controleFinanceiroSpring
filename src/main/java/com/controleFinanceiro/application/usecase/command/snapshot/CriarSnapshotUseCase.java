@@ -31,8 +31,8 @@ public class CriarSnapshotUseCase implements CriarSnapshotPort {
     @Transactional
     public Snapshot execute(CriarSnapshotCommand command) {
         var cadeia = new DataUnicaHandler(snapshotRepository);
-        cadeia.entao(new AtivosAtivosHandler(ativoRepository))
-              .entao(new SemPosicoeDuplicadaHandler());
+        cadeia.entao(new AtivosNaoArquivadosHandler(ativoRepository))
+              .entao(new SemPosicoesDuplicadasHandler());
         cadeia.handle(command);
 
         var builder = Snapshot.builder()

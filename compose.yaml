@@ -39,6 +39,8 @@ services:
       KC_DB_PASSWORD: ${DB_PASSWORD:-financeiro}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: "8180"
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
@@ -51,10 +53,10 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
       start_period: 60s
 
   backend:
@@ -68,7 +70,8 @@ services:
       DB_NAME: financeiro
       DB_USERNAME: ${DB_USERNAME:-financeiro}
       DB_PASSWORD: ${DB_PASSWORD:-financeiro}
-      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_URL: http://localhost:8180
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-financeiro}
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672

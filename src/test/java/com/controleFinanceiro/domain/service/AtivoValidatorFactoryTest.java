@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import com.controleFinanceiro.domain.model.Ativo;
 import com.controleFinanceiro.domain.model.TipoAtivo;
 import com.controleFinanceiro.domain.service.factory.AtivoValidatorFactory;
-import com.controleFinanceiro.domain.service.validator.RendaFixaValidator;
 import com.controleFinanceiro.domain.service.validator.TickerObrigatorioValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class AtivoValidatorFactoryTest {
 
@@ -21,8 +22,10 @@ class AtivoValidatorFactoryTest {
     }
 
     @Test
-    void forType_retorna_RendaFixaValidator_para_RENDA_FIXA() {
-        assertThat(AtivoValidatorFactory.forType(TipoAtivo.RENDA_FIXA))
-                .isInstanceOf(RendaFixaValidator.class);
+    void forType_para_RENDA_FIXA_nao_exige_ticker() {
+        var rendaFixaSemTicker = Ativo.create("Tesouro Selic", TipoAtivo.RENDA_FIXA, null, null);
+
+        assertThatCode(() -> AtivoValidatorFactory.forType(TipoAtivo.RENDA_FIXA).validate(rendaFixaSemTicker))
+                .doesNotThrowAnyException();
     }
 }

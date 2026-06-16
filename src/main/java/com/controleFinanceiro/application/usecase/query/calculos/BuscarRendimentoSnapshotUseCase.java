@@ -11,8 +11,7 @@ import com.controleFinanceiro.domain.exception.DomainException;
 import com.controleFinanceiro.domain.exception.NotFoundException;
 import com.controleFinanceiro.domain.port.in.query.BuscarRendimentoSnapshotPort;
 import com.controleFinanceiro.domain.port.out.query.CalculosQueryPort;
-import com.controleFinanceiro.domain.service.strategy.CagrStrategy;
-import com.controleFinanceiro.domain.service.strategy.SimpleReturnStrategy;
+import com.controleFinanceiro.domain.service.strategy.ModoRendimento;
 import com.controleFinanceiro.domain.shared.ErrorCodes;
 import com.controleFinanceiro.domain.shared.MessageKeys;
 
@@ -33,12 +32,12 @@ public class BuscarRendimentoSnapshotUseCase implements BuscarRendimentoSnapshot
             throw new DomainException(MessageKeys.SNAPSHOT_SEM_HISTORICO, ErrorCodes.SNAPSHOT_SEM_HISTORICO);
         }
 
-        String modoNormalizado = "cagr".equalsIgnoreCase(modo) ? "cagr" : "simple";
-        var strategy = "cagr".equals(modoNormalizado) ? new CagrStrategy() : new SimpleReturnStrategy();
+        var modoRendimento = ModoRendimento.de(modo);
 
         int meses = Math.max(1, (int) ChronoUnit.MONTHS.between(dados.dataAnterior(), dados.data()));
         var rendimentoAbsoluto = dados.totalLiq().subtract(dados.totalLiqAnterior());
-        var rendimentoPercentual = strategy.calculate(dados.totalLiqAnterior(), dados.totalLiq(), meses);
+        var rendimentoPercentual = modoRendimento.novaEstrategia()
+                .calculate(dados.totalLiqAnterior(), dados.totalLiq(), meses);
 
         return new RendimentoResponse(
                 dados.snapshotId(),
@@ -48,7 +47,7 @@ public class BuscarRendimentoSnapshotUseCase implements BuscarRendimentoSnapshot
                 dados.totalLiqAnterior(),
                 rendimentoAbsoluto,
                 rendimentoPercentual,
-                modoNormalizado
+                modoRendimento.codigo()
         );
     }
 }

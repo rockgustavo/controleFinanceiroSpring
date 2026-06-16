@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class SemPosicoeDuplicadaHandler extends SnapshotValidationHandler {
+public class SemPosicoesDuplicadasHandler extends SnapshotValidationHandler {
 
     @Override
     protected void validar(CriarSnapshotCommand command) {

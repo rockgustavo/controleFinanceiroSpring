@@ -12,9 +12,9 @@ import com.controleFinanceiro.domain.exception.DomainException;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class SemPosicoeDuplicadaHandlerTest {
+class SemPosicoesDuplicadasHandlerTest {
 
-    private final SemPosicoeDuplicadaHandler handler = new SemPosicoeDuplicadaHandler();
+    private final SemPosicoesDuplicadasHandler handler = new SemPosicoesDuplicadasHandler();
 
     @Test
     void handle_ativoId_duplicado_lanca_DomainException() {
