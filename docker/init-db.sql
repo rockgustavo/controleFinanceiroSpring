@@ -1,2 +1,2 @@
-CREATE DATABASE keycloak_db;
-GRANT ALL PRIVILEGES ON DATABASE keycloak_db TO financeiro;
+-- Banco de dados da aplicação criado via POSTGRES_DB no compose.yaml.
+-- Keycloak usa H2 embutido em modo dev — sem banco separado necessário.

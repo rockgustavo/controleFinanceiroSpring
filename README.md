@@ -40,7 +40,7 @@ Sistema fullstack para controle financeiro pessoal com:
 | Flyway | 10.x | Migrations versionadas — schema imutável em produção |
 | RabbitMQ | 3.x | Mensageria — publicação de eventos de domínio (fire-and-forget) |
 | Keycloak | 24 | Identity Provider OAuth2/OIDC |
-| SpringDoc OpenAPI | 2.x | Swagger UI com autenticação bearer |
+| SpringDoc OpenAPI | 2.x | Swagger UI com login OAuth2 (authorizationCode + PKCE) |
 | Lombok | 1.18.x | Redução de boilerplate sem reflection em runtime |
 | Testcontainers | — | Testes de integração com PostgreSQL real |
 
@@ -240,21 +240,47 @@ erDiagram
 
 ## Segurança
 
-**Fluxo OAuth2 / OIDC:**
-
 ```
 Angular ──login──▶ Keycloak ──JWT──▶ Spring Boot (valida via JWKS endpoint)
 ```
 
-- Spring Boot é **Resource Server** — nunca armazena senhas
-- Roles extraídas de `realm_access.roles` no JWT com prefixo `ROLE_`
-- Rate limiting via Nginx: **7 req/min por IP** (≈ 100/15 min) com burst de 20
+Spring Boot é **Resource Server stateless** — nunca recebe nem armazena senhas, apenas valida a assinatura do JWT. Roles vêm de `realm_access.roles` com prefixo `ROLE_`.
 
 | Rota | Acesso |
 |---|---|
 | `GET /api/health`, `/api/ping`, `/docs/**`, `/v3/api-docs/**` | Público |
 | `GET /api/**` | VIEWER + ADMIN (JWT válido) |
 | `POST · PATCH · DELETE /api/**` | ADMIN (JWT válido + role ADMIN) |
+
+### F12 e privilégio mínimo nas leituras
+
+Tudo que um VIEWER vê na tela ele também vê no F12 — a aba *Network* expõe as mesmas respostas que o Angular consome. Não se "esconde do F12" um dado enviado ao próprio usuário; a defesa é **não enviar mais do que o necessário**. As queries (camada Query) usam `JdbcTemplate` com projeção de colunas explícita — nunca `SELECT *` — e não vazam colunas de auditoria nem PKs internas:
+
+| Endpoint | Retorna | Omite |
+|---|---|---|
+| `GET /api/assets` · `/{id}` | id, nome, tipo, ticker, observações | `criado_em`, `atualizado_em`, `arquivado_em` |
+| `GET /api/snapshots` | id, data, total líquido, nº de posições | posições individuais |
+| `GET /api/snapshots/{id}` · `/latest` | snapshot + posições | `posicoes.id`, flags de controle |
+| `GET /api/market` · `/tesouro` | indicadores calculados | token e detalhes da chamada externa |
+
+Sem PII no modelo (sem CPF, conta ou senha); o `BRAPI_TOKEN` é usado só server-to-server e nunca trafega na resposta. `GET /api/assets/{id}` filtra `arquivado_em IS NULL` — ativo arquivado não é recuperável nem conhecendo o UUID.
+
+### Controles aplicados
+
+| Controle | Implementação |
+|---|---|
+| **Autenticação** | JWT validado contra o JWKS do Keycloak; assinatura inválida → 401 |
+| **Autorização dupla** | Filtro por método HTTP no `SecurityConfig` **e** `@PreAuthorize` por endpoint — VIEWER escrevendo → 403 |
+| **Token de curta duração** | `accessTokenLifespan: 900` (15 min); `keycloak-js` guarda em memória (não em `localStorage`) e renova de forma transparente |
+| **Força bruta** | `bruteForceProtected: true` no realm — bloqueio após 5 falhas, espera incremental até 15 min |
+| **SQL injection** | 100% das queries parametrizadas (`?`) — zero concatenação de input |
+| **Validação de entrada** | Bean Validation nos requests + regras de domínio (ex.: projeção limita `meses` a 1–600, barrando DoS em `Math.pow`) |
+| **Vazamento de erro** | `prod` suprime stack trace e mensagem interna; `dev` mantém detalhe para depurar |
+| **CORS / CSRF** | Origens em allowlist (sem `*`); CSRF off por ser stateless + Bearer (sem cookie de sessão) |
+| **Rate limiting** | Nginx: 7 req/min por IP, burst 20 em `/api/` na topologia Docker/local |
+| **Segredos** | Credenciais reais só em variáveis de ambiente (`.env` no `.gitignore`); o `realm-export.json` versiona apenas credenciais de dev |
+
+> **Escopo:** o rate limiting do Nginx vale na topologia Docker; em produção (Vercel → Render) a mitigação fica por conta da plataforma e da ausência de auto-cadastro. A defesa de força bruta no login vale em todos os ambientes por estar no realm. Portfólio único e compartilhado entre os papéis — sem ownership por usuário, logo sem IDOR.
 
 ---
 
@@ -318,11 +344,9 @@ O primeiro start leva ~1–2 min: build das imagens, Flyway aplica as migrations
 | Serviço | URL |
 |---|---|
 | Frontend | http://localhost |
-| API / Swagger | http://localhost:8088/docs |
+| API / Swagger | http://localhost:8080/docs |
 | Keycloak Admin | http://localhost:8180 |
 | RabbitMQ Management | http://localhost:15672 |
-
-> **Reiniciando do zero?** O banco do Keycloak (`keycloak_db`) só é criado quando o volume do Postgres nasce. Se um start anterior falhou no meio, limpe antes com `docker compose down -v`.
 
 ### Desenvolvimento local
 
@@ -349,7 +373,7 @@ Acessos locais: **Frontend** http://localhost:4200 · **Swagger** http://localho
 | RabbitMQ | `guest` / `guest` | Painel de gestão |
 | PostgreSQL | `financeiro` / `financeiro` | Banco `financeiro` |
 
-> Os dois usuários acima — além do realm, clients e roles — são criados **automaticamente** pelo Keycloak na primeira subida (`start-dev --import-realm` a partir de [keycloak/realm-export.json](keycloak/realm-export.json)). Não há cadastro manual. Em restarts o import é ignorado (o realm já existe no `keycloak_db`); para recriar do zero, `docker compose down -v`.
+> Os dois usuários acima — além do realm, clients e roles — são criados **automaticamente** pelo Keycloak em toda subida (`start-dev --import-realm` a partir de [keycloak/realm-export.json](keycloak/realm-export.json)). O Keycloak usa H2 embutido: dados não persistem entre restarts, então o realm é sempre reimportado do zero sem precisar de `docker compose down -v`.
 
 ---
 
@@ -387,6 +411,28 @@ flowchart LR
     R --> N["Neon\nPostgreSQL"]
     R --> Q["CloudAMQP\nRabbitMQ"]
     R -->|"valida JWT via JWKS"| K
+```
+
+### Como testar a API em produção
+
+O proxy do Vercel (`/api/*` → Render) é usado pelo Angular, que injeta o header `Authorization: Bearer` automaticamente via `AuthInterceptor`. Acessar `/api/assets` diretamente no browser não funciona porque o browser não envia header de auth na barra de endereços.
+
+| O que testar | Como |
+|---|---|
+| Endpoints públicos (`/ping`, `/health`) | URL direto no browser ou `curl` |
+| Endpoints protegidos | **Swagger UI** (recomendado) ou `curl` com header |
+
+**Via Swagger UI** (sem instalar nada):
+1. Acesse https://controlefinanceirospring.onrender.com/docs
+2. Clique em **Authorize** (scopes já pré-selecionados) e confirme clicando em **Authorize** novamente
+3. O Swagger redireciona para o login do Keycloak — entre com suas credenciais
+4. Após o login, o token é injetado automaticamente em todas as chamadas
+
+**Via curl** com token:
+```bash
+# obtenha o token no DevTools: Network → qualquer request /api/** → aba Headers → Authorization
+curl -H "Authorization: Bearer <token>" \
+     https://controlefinanceirospring.onrender.com/api/assets
 ```
 
 ---
