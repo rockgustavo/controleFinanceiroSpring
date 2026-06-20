@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health").permitAll()
+                        .requestMatchers("/api/health", "/api/ping").permitAll()
                         .requestMatchers("/docs/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("ADMIN", "VIEWER")
                         .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
@@ -77,7 +77,8 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .bearerTokenResolver(request -> {
-                            if ("/api/health".equals(request.getRequestURI())) return null;
+                            String uri = request.getRequestURI();
+                            if ("/api/health".equals(uri) || "/api/ping".equals(uri)) return null;
                             return new DefaultBearerTokenResolver().resolve(request);
                         })
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakRoleConverter()))

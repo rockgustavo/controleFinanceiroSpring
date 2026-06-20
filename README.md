@@ -252,7 +252,7 @@ Angular ──login──▶ Keycloak ──JWT──▶ Spring Boot (valida via
 
 | Rota | Acesso |
 |---|---|
-| `GET /api/health`, `/docs/**`, `/v3/api-docs/**` | Público |
+| `GET /api/health`, `/api/ping`, `/docs/**`, `/v3/api-docs/**` | Público |
 | `GET /api/**` | VIEWER + ADMIN (JWT válido) |
 | `POST · PATCH · DELETE /api/**` | ADMIN (JWT válido + role ADMIN) |
 
@@ -263,6 +263,7 @@ Angular ──login──▶ Keycloak ──JWT──▶ Spring Boot (valida via
 | Método | Rota | Role | Descrição |
 |---|---|---|---|
 | GET | `/api/health` | Público | Status da aplicação e do banco |
+| GET | `/api/ping` | Público | Liveness sem acesso ao banco — keep-alive do pinger |
 | GET | `/api/assets` | VIEWER | Lista ativos não arquivados (JDBC) |
 | GET | `/api/assets/{id}` | VIEWER | Busca ativo por ID (JDBC) |
 | POST | `/api/assets` | ADMIN | Cria ativo + publica evento RabbitMQ |
@@ -349,6 +350,44 @@ Acessos locais: **Frontend** http://localhost:4200 · **Swagger** http://localho
 | PostgreSQL | `financeiro` / `financeiro` | Banco `financeiro` |
 
 > Os dois usuários acima — além do realm, clients e roles — são criados **automaticamente** pelo Keycloak na primeira subida (`start-dev --import-realm` a partir de [keycloak/realm-export.json](keycloak/realm-export.json)). Não há cadastro manual. Em restarts o import é ignorado (o realm já existe no `keycloak_db`); para recriar do zero, `docker compose down -v`.
+
+---
+
+## Deploy em Produção (Free Tier)
+
+O projeto está no ar usando uma topologia multi-cloud 100% gratuita, diferente do `docker compose` local.
+
+### Infraestrutura
+
+| Camada | Serviço | Plano | Papel |
+|---|---|---|---|
+| Backend | Render | Free | Hospeda o Spring Boot via Dockerfile |
+| Frontend | Vercel | Hobby | Build + CDN do Angular; proxy `/api/*` → Render |
+| Banco | Neon | Free | PostgreSQL serverless — pooler + direct connection |
+| Mensageria | CloudAMQP | Little Lemur | RabbitMQ gerenciado — vhost compartilhado |
+| Identity Provider | Cloud-IAM | Freemium | Keycloak gerenciado — realm isolado em cluster compartilhado |
+| Monitoramento | UptimeRobot | Free | Ping em `/api/ping` a cada 14 min — evita cold start do Render |
+
+### URLs de produção
+
+| Serviço | URL |
+|---|---|
+| Frontend | https://controle-financeiro-ang.vercel.app |
+| API / Swagger | https://controlefinanceirospring.onrender.com/docs |
+| Health check | https://controlefinanceirospring.onrender.com/api/health |
+| Keep-alive (pinger) | https://controlefinanceirospring.onrender.com/api/ping |
+
+### Topologia
+
+```mermaid
+flowchart LR
+    U["Usuário"] --> V["Vercel\nAngular + proxy /api"]
+    V -->|"/api/*"| R["Render\nSpring Boot"]
+    V -->|"login OIDC"| K["Cloud-IAM\nKeycloak"]
+    R --> N["Neon\nPostgreSQL"]
+    R --> Q["CloudAMQP\nRabbitMQ"]
+    R -->|"valida JWT via JWKS"| K
+```
 
 ---
 

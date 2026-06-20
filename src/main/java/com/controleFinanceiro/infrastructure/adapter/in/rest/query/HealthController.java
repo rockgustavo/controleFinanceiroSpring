@@ -19,6 +19,11 @@ public class HealthController {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @GetMapping("/ping")
+    public ResponseEntity<ApiResponse<Map<String, String>>> ping() {
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("status", "ok")));
+    }
+
     @GetMapping("/health")
     public ResponseEntity<ApiResponse<Map<String, String>>> health() {
         String dbStatus;
